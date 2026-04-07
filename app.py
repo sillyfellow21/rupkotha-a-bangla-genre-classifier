@@ -3,6 +3,7 @@ from pathlib import Path
 import streamlit as st
 
 from src.inference import GenrePredictor
+from src.train import TrainingConfig, train
 
 st.set_page_config(page_title="Rupkotha Genre Engine", page_icon="📚", layout="wide")
 
@@ -44,6 +45,42 @@ st.markdown(
 
 MODEL_DIR = Path("model/best_model")
 LABEL_MAP = Path("artifacts/label_map.json")
+MODEL_FILES = ["config.json", "model.safetensors", "tokenizer.json", "tokenizer_config.json"]
+
+
+def has_model_artifacts() -> bool:
+    return MODEL_DIR.exists() and all((MODEL_DIR / name).exists() for name in MODEL_FILES)
+
+
+def bootstrap_demo_model() -> None:
+    from src.preprocessing import preprocess_dataset
+
+    cleaned_csv = Path("data/processed/books_clean.csv")
+    if not cleaned_csv.exists():
+        preprocess_dataset(
+            input_csv=Path("data/raw/bengali_books_demo.csv"),
+            output_csv=cleaned_csv,
+            text_col="summary",
+            label_col="genre",
+        )
+
+    cfg = TrainingConfig(
+        input_csv=cleaned_csv,
+        text_col="summary",
+        label_col="genre",
+        model_name="csebuetnlp/banglabert",
+        output_dir=MODEL_DIR,
+        label_map_path=LABEL_MAP,
+        train_split_path=Path("data/processed/train_split.csv"),
+        test_split_path=Path("data/processed/test_split.csv"),
+        epochs=1,
+        batch_size=8,
+        learning_rate=2e-5,
+        max_length=256,
+        patience=1,
+        random_seed=42,
+    )
+    train(cfg)
 
 
 @st.cache_resource
@@ -86,13 +123,30 @@ with right:
 - Output: Predicted genre + confidence
 """
     )
-    st.markdown('<p class="small-note">মডেল ফাইল না থাকলে আগে training চালান।</p>', unsafe_allow_html=True)
+    st.markdown(
+        '<p class="small-note">মডেল ফাইল না থাকলে নিচের বাটন থেকে ডেমো মডেল তৈরি করুন।</p>',
+        unsafe_allow_html=True,
+    )
+
+if not has_model_artifacts():
+    st.warning("মডেল ফাইল পাওয়া যায়নি। প্রথমবার চালাতে ডেমো মডেল তৈরি করতে হবে।")
+    if st.button("Build Demo Model (First Run)", use_container_width=True):
+        with st.spinner("ডেমো মডেল তৈরি হচ্ছে... এটি ২-৮ মিনিট লাগতে পারে।"):
+            try:
+                bootstrap_demo_model()
+                st.cache_resource.clear()
+                st.success("ডেমো মডেল তৈরি হয়েছে। এখন Predict Genre চাপুন।")
+            except Exception as exc:
+                st.error(f"মডেল তৈরি ব্যর্থ হয়েছে: {exc}")
+                st.info(
+                    "Streamlit Cloud-এ প্রথম রান ধীর হতে পারে। আবার চেষ্টা করুন অথবা README-র Training steps local এ চালিয়ে model ফাইল আপলোড করুন।"
+                )
 
 if predict_clicked:
     if not user_text.strip():
         st.warning("অনুগ্রহ করে একটি সারাংশ লিখুন।")
-    elif not MODEL_DIR.exists() or not LABEL_MAP.exists():
-        st.error("মডেল পাওয়া যায়নি। আগে preprocessing + training স্ক্রিপ্ট চালান।")
+    elif not has_model_artifacts() or not LABEL_MAP.exists():
+        st.error("মডেল পাওয়া যায়নি। আগে উপরের Build Demo Model চালান।")
     else:
         predictor = load_predictor()
         result = predictor.predict(user_text)
