@@ -1,0 +1,28 @@
+# Python cache and build artifacts
+__pycache__/
+*.py[cod]
+*.egg-info/
+.build/
+dist/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Model and report outputs
+model/best_model/
+reports/metrics.json
+reports/classification_report.txt
+reports/error_analysis.csv
+reports/figures/*.png
+artifacts/training_history.json
+artifacts/training_curve.png
+
+# OS/editor
+.DS_Store
+Thumbs.db
+.vscode/settings.json
