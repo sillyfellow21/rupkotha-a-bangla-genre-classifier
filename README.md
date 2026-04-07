@@ -22,6 +22,9 @@ This project automates genre prediction from Bengali summaries with a BERT-style
 - জীবনী
 - শিশু-কিশোর
 
+## Dataset
+- Demo CSV: [data/raw/bengali_books_demo.csv](data/raw/bengali_books_demo.csv)
+
 ## Project Structure
 
 ```text
@@ -159,36 +162,6 @@ _Last updated: 2026-04-07 18:49 UTC_
 ```bash
 python -m src.inference --text "রাতের ট্রেনে ঘটে যাওয়া হত্যাকাণ্ডের রহস্য উন্মোচনে এক তদন্তকারী নামেন।"
 ```
-
-## Deployment Guide
-
-### Option A: Streamlit Cloud (Recommended)
-1. Push this repository to GitHub.
-2. Sign in to https://streamlit.io/cloud with GitHub.
-3. Click **New app**.
-4. Select repo, branch, and `app.py` as entry point.
-5. Add Python version if needed (3.10+ recommended).
-6. Deploy.
-7. Copy the public app URL and add it to this README.
-
-### Option B: Hugging Face Spaces
-1. Create a new Space at https://huggingface.co/spaces.
-2. Choose **Streamlit** SDK and set visibility to public.
-3. Upload project files (`app.py`, `src/`, `requirements.txt`, artifacts/model files).
-4. Commit files; Space will auto-build.
-5. Share generated public URL.
-
-## Reproducibility Notes
-- Set random seed through `--seed` in `src.train`.
-- Keep Unicode CSV encoding as UTF-8.
-- For production-level accuracy, replace the demo CSV with a larger open Bengali summary dataset.
-
-## Publish Checklist
-- [ ] Add real model artifacts to `model/best_model/` (or provide download instructions).
-- [ ] Add a live app URL under Demo Screenshot after deployment.
-- [ ] Add 1-2 repository topics on GitHub (for example: `nlp`, `bengali`, `transformers`, `streamlit`).
-- [ ] Pin this repository on your GitHub profile.
-- [ ] Add a short project post in your GitHub profile README linking this repo.
 
 ## License
 This project is licensed under the MIT License. See [LICENSE](LICENSE).
