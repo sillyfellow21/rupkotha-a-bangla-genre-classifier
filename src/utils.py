@@ -39,6 +39,7 @@ def load_label_map(path: Path) -> Dict[str, Dict[str, str]]:
 
 
 def compute_metrics(y_true, y_pred) -> Dict[str, float]:
+    """Compute macro-averaged metrics for multi-class classification."""
     accuracy = accuracy_score(y_true, y_pred)
     precision, recall, f1, _ = precision_recall_fscore_support(
         y_true,
@@ -46,6 +47,7 @@ def compute_metrics(y_true, y_pred) -> Dict[str, float]:
         average="macro",
         zero_division=0,
     )
+    # Using macro avg since classes might be imbalanced
     return {
         "accuracy": float(accuracy),
         "precision_macro": float(precision),

@@ -49,6 +49,8 @@ MODEL_FILES = ["config.json", "model.safetensors", "tokenizer.json", "tokenizer_
 
 
 def has_model_artifacts() -> bool:
+    """Check if all required model files exist."""
+    # Verify both directory and critical model files
     return MODEL_DIR.exists() and all((MODEL_DIR / name).exists() for name in MODEL_FILES)
 
 

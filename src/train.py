@@ -29,6 +29,9 @@ from src.config import (
 from src.preprocessing import normalize_bengali_text
 from src.utils import compute_metrics, ensure_dirs, get_device, plot_training_history, save_label_map, set_seed
 
+# TODO: Try larger LR schedule or different scheduler
+# NOTE: Early stopping by val_f1 works better than val_loss for this dataset
+
 
 @dataclass
 class TrainingConfig:
@@ -49,6 +52,7 @@ class TrainingConfig:
 
 
 class SummaryDataset(Dataset):
+    """Dataset wrapper for Bengali text classification."""
     def __init__(self, texts: List[str], labels: List[int], tokenizer, max_length: int):
         self.texts = texts
         self.labels = labels
@@ -56,6 +60,7 @@ class SummaryDataset(Dataset):
         self.max_length = max_length
 
     def __len__(self) -> int:
+        # Keep track of actual samples
         return len(self.texts)
 
     def __getitem__(self, idx: int) -> Dict[str, torch.Tensor]:
