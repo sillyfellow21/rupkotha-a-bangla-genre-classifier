@@ -66,6 +66,8 @@ Rupkotha-Genre-Engine/
 ## Demo Screenshot
 Add screenshot after deployment:
 
+Live App: [rupkotha-a-bangla-genre-classifier-9jeepwayttgsmdtz4wcjdw.streamlit.app](https://rupkotha-a-bangla-genre-classifier-9jeepwayttgsmdtz4wcjdw.streamlit.app)
+
 ```text
 ![Demo UI](assets/demo-screenshot.png)
 ```
