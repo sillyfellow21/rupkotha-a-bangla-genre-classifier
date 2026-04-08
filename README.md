@@ -13,14 +13,15 @@ The codebase is designed for reproducibility, portfolio publishing, and public d
 Bengali publishing platforms, libraries, and readers often face difficulty in fast genre tagging for new books.
 This project automates genre prediction from Bengali summaries with a BERT-style classifier.
 
-## Genre Labels (7)
-- উপন্যাস
-- কবিতা
-- বিজ্ঞান কল্পকাহিনি
-- রহস্য-রোমাঞ্চ
-- ইতিহাস
-- জীবনী
-- শিশু-কিশোর
+## Labels (3)
+- ইতিবাচক
+- নিরপেক্ষ
+- নেতিবাচক
+
+## Dataset Source
+- Internet source (Hugging Face): https://huggingface.co/datasets/mHossain/bengali_sentiment_v2
+- License: MIT
+- Project CSV (prepared from source): [data/raw/bengali_books_demo.csv](data/raw/bengali_books_demo.csv)
 
 ## Dataset
 - Demo CSV: [data/raw/bengali_books_demo.csv](data/raw/bengali_books_demo.csv)
@@ -83,19 +84,24 @@ python -m venv .venv
 pip install -r requirements.txt
 ```
 
-### 2. Preprocess dataset
+### 2. Download dataset from internet
+```bash
+python -m src.download_dataset --output_csv data/raw/bengali_books_demo.csv
+```
+
+### 3. Preprocess dataset
 ```bash
 python -m src.preprocessing \
   --input_csv data/raw/bengali_books_demo.csv \
   --output_csv data/processed/books_clean.csv
 ```
 
-### 3. Run EDA
+### 4. Run EDA
 ```bash
 python -m src.eda --input_csv data/processed/books_clean.csv
 ```
 
-### 4. Train model
+### 5. Train model
 ```bash
 python -m src.train \
   --input_csv data/processed/books_clean.csv \
@@ -105,14 +111,14 @@ python -m src.train \
   --learning_rate 2e-5
 ```
 
-### 5. Evaluate
+### 6. Evaluate
 ```bash
 python -m src.evaluate \
   --model_dir model/best_model \
   --test_csv data/processed/test_split.csv
 ```
 
-### 6. Run Streamlit app
+### 7. Run Streamlit app
 ```bash
 streamlit run app.py
 ```
