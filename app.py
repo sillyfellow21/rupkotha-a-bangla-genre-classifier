@@ -109,14 +109,13 @@ with right:
         "python -m src.train --input_csv data/processed/books_clean.csv --epochs 1\n"
         "```\n\n"
         "তারপর `model/best_model/` এবং `artifacts/` ফোল্ডার GitHub-এ commit করুন।"
-    )   "Streamlit Cloud-এ প্রথম রান ধীর হতে পারে। আবার চেষ্টা করুন অথবা README-র Training steps local এ চালিয়ে model ফাইল আপলোড করুন।"
-                )
+    )
 
 if predict_clicked:
     if not user_text.strip():
         st.warning("অনুগ্রহ করে একটি সারাংশ লিখুন।")
     elif not has_model_artifacts() or not LABEL_MAP.exists():
-        st.error("মডেল পাওয়া যায়নি। আগে উপরের Build Demo Model চালান।")
+        st.error("মডেল পাওয়া যায়নি। প্রথমে লোকালে মডেল তৈরি করুন এবং GitHub-এ push করুন।")
     else:
         predictor = load_predictor()
         result = predictor.predict(user_text)
