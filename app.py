@@ -6,45 +6,111 @@ from src.inference import GenrePredictor
 
 st.set_page_config(page_title="Rupkotha Genre Engine", page_icon="📚", layout="wide")
 
-CUSTOM_CSS = """
-<style>
-.main {
-    background: radial-gradient(circle at 0% 0%, #f3f7ff 0%, #fffef8 55%, #f8fff8 100%);
+THEME_PRESETS = {
+    "Ocean Glass": {
+        "bg_a": "#f2f8ff",
+        "bg_b": "#fffdf7",
+        "bg_c": "#eefcf4",
+        "hero_a": "#0c3c78",
+        "hero_b": "#0f6f95",
+        "hero_c": "#2f9e44",
+        "text": "#0b2540",
+        "muted": "#486581",
+        "card": "#ffffff",
+        "card_soft": "#f8fbff",
+        "border": "#cbd5e1",
+        "accent": "#0f6f95",
+    },
+    "Citrus Warm": {
+        "bg_a": "#fff7ef",
+        "bg_b": "#fffef9",
+        "bg_c": "#fff5f6",
+        "hero_a": "#7f2a12",
+        "hero_b": "#b8461c",
+        "hero_c": "#e07a1f",
+        "text": "#3b1f0f",
+        "muted": "#6f4e37",
+        "card": "#ffffff",
+        "card_soft": "#fff9f2",
+        "border": "#f1d2b6",
+        "accent": "#d95f18",
+    },
+    "Slate Mint": {
+        "bg_a": "#eef5f5",
+        "bg_b": "#f9fbfb",
+        "bg_c": "#eefaf3",
+        "hero_a": "#1f3b4d",
+        "hero_b": "#2e596f",
+        "hero_c": "#228b66",
+        "text": "#1d2d35",
+        "muted": "#4f6470",
+        "card": "#ffffff",
+        "card_soft": "#f5fbf8",
+        "border": "#c8d9d2",
+        "accent": "#1f7a8c",
+    },
 }
-.hero {
+
+
+def build_theme_css(theme: dict) -> str:
+    return f"""
+<style>
+.stApp {{
+    background: radial-gradient(circle at 0% 0%, {theme['bg_a']} 0%, {theme['bg_b']} 55%, {theme['bg_c']} 100%);
+    color: {theme['text']};
+}}
+.hero {{
     padding: 1.2rem 1.5rem;
     border-radius: 16px;
-    background: linear-gradient(135deg, #083d77 0%, #0f6a8f 45%, #2f9e44 100%);
+    background: linear-gradient(135deg, {theme['hero_a']} 0%, {theme['hero_b']} 45%, {theme['hero_c']} 100%);
     color: white;
     margin-bottom: 1rem;
-}
-.pred-box {
-    border: 1px solid #cbd5e1;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+}}
+.pred-box {{
+    border: 1px solid {theme['border']};
     border-radius: 14px;
     padding: 1rem 1.1rem;
-    background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+    background: linear-gradient(180deg, {theme['card']} 0%, {theme['card_soft']} 100%);
     box-shadow: 0 6px 18px rgba(15, 23, 42, 0.08);
-}
-.pred-title {
+}}
+.pred-title {{
     margin: 0 0 0.35rem 0;
-    color: #0b2540;
+    color: {theme['text']};
     font-weight: 700;
-}
-.pred-meta {
+}}
+.pred-meta {{
     margin: 0;
-    color: #334e68;
-}
-.pred-meta b {
-    color: #0b2540;
-}
-.small-note {
-    color: #5c6b73;
+    color: {theme['muted']};
+}}
+.pred-meta b {{
+    color: {theme['text']};
+}}
+.small-note {{
+    color: {theme['muted']};
     font-size: 0.92rem;
-}
+}}
+div.stButton > button {{
+    background: linear-gradient(135deg, {theme['accent']} 0%, {theme['hero_b']} 100%);
+    color: #ffffff;
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
+}}
+div.stButton > button:hover {{
+    filter: brightness(1.05);
+}}
 </style>
 """
 
-st.markdown(CUSTOM_CSS, unsafe_allow_html=True)
+
+with st.sidebar:
+    st.subheader("Theme Studio")
+    selected_theme = st.selectbox("Theme Preset", list(THEME_PRESETS.keys()), index=0)
+    theme_values = dict(THEME_PRESETS[selected_theme])
+    theme_values["accent"] = st.color_picker("Accent Color", theme_values["accent"])
+
+st.markdown(build_theme_css(theme_values), unsafe_allow_html=True)
 st.markdown(
     """
 <div class="hero">
