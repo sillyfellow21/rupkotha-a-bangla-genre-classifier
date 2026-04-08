@@ -3,7 +3,6 @@ from pathlib import Path
 import streamlit as st
 
 from src.inference import GenrePredictor
-from src.train import TrainingConfig, train
 
 st.set_page_config(page_title="Rupkotha Genre Engine", page_icon="📚", layout="wide")
 
@@ -54,46 +53,15 @@ def has_model_artifacts() -> bool:
     return MODEL_DIR.exists() and all((MODEL_DIR / name).exists() for name in MODEL_FILES)
 
 
-def bootstrap_demo_model() -> None:
-    from src.preprocessing import preprocess_dataset
-
-    cleaned_csv = Path("data/processed/books_clean.csv")
-    if not cleaned_csv.exists():
-        preprocess_dataset(
-            input_csv=Path("data/raw/bengali_books_demo.csv"),
-            output_csv=cleaned_csv,
-            text_col="summary",
-            label_col="genre",
-        )
-
-    cfg = TrainingConfig(
-        input_csv=cleaned_csv,
-        text_col="summary",
-        label_col="genre",
-        model_name="csebuetnlp/banglabert",
-        output_dir=MODEL_DIR,
-        label_map_path=LABEL_MAP,
-        train_split_path=Path("data/processed/train_split.csv"),
-        test_split_path=Path("data/processed/test_split.csv"),
-        epochs=1,
-        batch_size=8,
-        learning_rate=2e-5,
-        max_length=256,
-        patience=1,
-        random_seed=42,
-    )
-    train(cfg)
-
-
 @st.cache_resource
 def load_predictor() -> GenrePredictor:
     return GenrePredictor(model_dir=MODEL_DIR, label_map_path=LABEL_MAP)
 
 
 examples = {
-    "উদাহরণ ১ - রহস্য": "প্রাচীন জমিদারবাড়িতে রাতের পর রাত অদ্ভুত শব্দ শোনা যায়। এক তরুণ তদন্তকারী হারিয়ে যাওয়া উত্তরাধিকারীর সূত্র খুঁজতে গিয়ে ভয়ংকর এক ষড়যন্ত্র আবিষ্কার করে।",
-    "উদাহরণ ২ - বিজ্ঞান কল্পকাহিনি": "২১০০ সালে মঙ্গল গ্রহে বসতি স্থাপনের সময় একদল বিজ্ঞানী এমন একটি সংকেত পায় যা মানুষের ইতিহাস সম্পর্কে ভিন্ন সত্য উন্মোচন করে।",
-    "উদাহরণ ৩ - জীবনী": "গ্রামের দরিদ্র পরিবারে জন্ম নেওয়া এক শিক্ষক কিভাবে সংগ্রাম করে জাতীয় শিক্ষাবিদে পরিণত হলেন, তার অনুপ্রেরণামূলক জীবনের গল্প।",
+    "উদাহরণ ১ - ইতিবাচক": "এই বইটি সত্যিই অসাধারণ এবং অনুপ্রেরণাদায়ক। লেখক খুব সুন্দরভাবে গল্পটি উপস্থাপন করেছেন এবং আমি এটি সবাইকে সুপারিশ করব।",
+    "উদাহরণ २ - নেতিবাচক": "বই পড়তে গিয়ে খুব হতাশ হয়েছি। গল্পের গতিপ্রবাহ খুবই ধীর এবং অনেক অংশ বোধগম্য নয়। এটি সময়ের অপচয় ছিল।",
+    "উদাহরণ ३ - নিরপেক্ষ": "এই উপন্যাসটি মোটামুটি ভালো। কিছু অংশ আকর্ষণীয় ছিল কিন্তু অন্যান্য অংশ একটু দুর্বল মনে হয়েছে।",
 }
 
 left, right = st.columns([1.6, 1], gap="large")
@@ -120,9 +88,10 @@ with right:
     st.markdown(
         """
 - Model: BanglaBERT sequence classifier
-- Classes: 7 Bengali genre labels
-- Input: Bengali Unicode summary
-- Output: Predicted genre + confidence
+- Task: Sentiment classification
+- Classes: 3 labels (positive/neutral/negative)
+- Input: Bengali Unicode text
+- Output: Predicted sentiment + confidence
 """
     )
     st.markdown(
@@ -130,18 +99,17 @@ with right:
         unsafe_allow_html=True,
     )
 
-if not has_model_artifacts():
-    st.warning("মডেল ফাইল পাওয়া যায়নি। প্রথমবার চালাতে ডেমো মডেল তৈরি করতে হবে।")
-    if st.button("Build Demo Model (First Run)", use_container_width=True):
-        with st.spinner("ডেমো মডেল তৈরি হচ্ছে... এটি ২-৮ মিনিট লাগতে পারে।"):
-            try:
-                bootstrap_demo_model()
-                st.cache_resource.clear()
-                st.success("ডেমো মডেল তৈরি হয়েছে। এখন Predict Genre চাপুন।")
-            except Exception as exc:
-                st.error(f"মডেল তৈরি ব্যর্থ হয়েছে: {exc}")
-                st.info(
-                    "Streamlit Cloud-এ প্রথম রান ধীর হতে পারে। আবার চেষ্টা করুন অথবা README-র Training steps local এ চালিয়ে model ফাইল আপলোড করুন।"
+    st.error("⚠️ মডেল ফাইল পাওয়া যায়নি।")
+    st.info(
+        "**লোকালে মডেল তৈরি করতে হবে:**\n\n"
+        "আপনার কম্পিউটারে এই কমান্ড চালান:\n\n"
+        "```bash\n"
+        "python -m src.download_dataset --output_csv data/raw/bengali_books_demo.csv\n"
+        "python -m src.preprocessing --input_csv data/raw/bengali_books_demo.csv --output_csv data/processed/books_clean.csv\n"
+        "python -m src.train --input_csv data/processed/books_clean.csv --epochs 1\n"
+        "```\n\n"
+        "তারপর `model/best_model/` এবং `artifacts/` ফোল্ডার GitHub-এ commit করুন।"
+    )   "Streamlit Cloud-এ প্রথম রান ধীর হতে পারে। আবার চেষ্টা করুন অথবা README-র Training steps local এ চালিয়ে model ফাইল আপলোড করুন।"
                 )
 
 if predict_clicked:
