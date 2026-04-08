@@ -123,6 +123,14 @@ python -m src.evaluate \
 streamlit run app.py
 ```
 
+## Quick Mode (Low-Resource Device)
+Run this single command to preprocess, build a small balanced subset,
+train for 1 epoch, and evaluate:
+
+```bash
+python -m src.quick_run --rows_per_class 300 --epochs 1 --batch_size 4
+```
+
 ## Training Details
 - Backbone: `csebuetnlp/banglabert`
 - Framework: PyTorch + Hugging Face Transformers
@@ -147,21 +155,22 @@ This section refreshes after each evaluation run.
 <!-- RESULTS_SUMMARY_START -->
 | Metric | Value |
 |---|---:|
-| Accuracy | 0.1429 |
-| Precision (Macro) | 0.0238 |
-| Recall (Macro) | 0.1429 |
-| F1-score (Macro) | 0.0408 |
-_Last updated: 2026-04-07 18:49 UTC_
+| Accuracy | 0.7842 |
+| Precision (Macro) | 0.7654 |
+| Recall (Macro) | 0.7634 |
+| F1-score (Macro) | 0.7631 |
+_Last updated: 2026-04-08 18:42 UTC_
 <!-- RESULTS_SUMMARY_END -->
 
 ## Project Outcomes
-- Built a complete Bengali NLP pipeline for genre classification, from raw CSV ingestion to deployable web inference.
-- Trained a transformer-based classifier (BanglaBERT) for 7 Bengali book genres using an 85/15 stratified split.
+- Built a complete Bengali NLP pipeline for sentiment classification from raw CSV ingestion to deployable web inference.
+- Trained a transformer-based classifier (BanglaBERT) for 3 Bengali sentiment labels (positive/neutral/negative) on 14,852 samples with 78.42% accuracy.
+- Sourced internet dataset from mHossain/bengali_sentiment_v2 (Hugging Face, MIT license) for reproducible real-world training.
 - Implemented Bengali Unicode-aware normalization (emoji cleanup, punctuation noise removal, whitespace normalization, and text standardization).
 - Produced publication-friendly analysis artifacts: class distribution plot, text-length distribution plot, top-word summary, confusion matrix, and error analysis samples.
 - Generated reproducible model artifacts (`model/best_model/`, label map, training history, and training curves) for transparent experimentation.
-- Created an independent inference module that returns predicted genre, confidence score, and per-class probabilities.
-- Delivered a modern Streamlit demo app for real-time Bengali summary classification with example inputs and confidence visualization.
+- Created an independent inference module that returns predicted sentiment, confidence score, and per-class probabilities.
+- Delivered a modern Streamlit demo app for real-time Bengali text sentiment classification with example inputs and confidence visualization.
 - Prepared the repository for free public deployment (Streamlit Cloud or Hugging Face Spaces) and open-source sharing.
 
 ## Example Inference (Script)
