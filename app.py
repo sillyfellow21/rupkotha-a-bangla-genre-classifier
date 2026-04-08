@@ -55,7 +55,11 @@ def has_model_artifacts() -> bool:
 
 @st.cache_resource
 def load_predictor() -> GenrePredictor:
-    return GenrePredictor(model_dir=MODEL_DIR, label_map_path=LABEL_MAP)
+    return GenrePredictor(
+        model_dir=MODEL_DIR,
+        label_map_path=LABEL_MAP,
+        allow_fallback=True,
+    )
 
 
 examples = {
@@ -95,30 +99,29 @@ with right:
 """
     )
     st.markdown(
-        '<p class="small-note">মডেল ফাইল না থাকলে নিচের বাটন থেকে ডেমো মডেল তৈরি করুন।</p>',
+        '<p class="small-note">লোকাল মডেল না থাকলে fallback cloud model ব্যবহার হবে।</p>',
         unsafe_allow_html=True,
     )
 
-    st.error("⚠️ মডেল ফাইল পাওয়া যায়নি।")
-    st.info(
-        "**লোকালে মডেল তৈরি করতে হবে:**\n\n"
-        "আপনার কম্পিউটারে এই কমান্ড চালান:\n\n"
-        "```bash\n"
-        "python -m src.download_dataset --output_csv data/raw/bengali_books_demo.csv\n"
-        "python -m src.preprocessing --input_csv data/raw/bengali_books_demo.csv --output_csv data/processed/books_clean.csv\n"
-        "python -m src.train --input_csv data/processed/books_clean.csv --epochs 1\n"
-        "```\n\n"
-        "তারপর `model/best_model/` এবং `artifacts/` ফোল্ডার GitHub-এ commit করুন।"
-    )
+    if not has_model_artifacts():
+        st.warning("⚠️ লোকাল মডেল ফাইল পাওয়া যায়নি।")
+        st.info(
+            "Fallback cloud model ব্যবহার করা হবে। প্রথম prediction একটু সময় নিতে পারে।"
+        )
 
 if predict_clicked:
     if not user_text.strip():
         st.warning("অনুগ্রহ করে একটি সারাংশ লিখুন।")
-    elif not has_model_artifacts() or not LABEL_MAP.exists():
-        st.error("মডেল পাওয়া যায়নি। প্রথমে লোকালে মডেল তৈরি করুন এবং GitHub-এ push করুন।")
     else:
-        predictor = load_predictor()
-        result = predictor.predict(user_text)
+        try:
+            predictor = load_predictor()
+            result = predictor.predict(user_text)
+        except Exception as exc:
+            st.error(f"Prediction ব্যর্থ হয়েছে: {exc}")
+            st.info(
+                "Network block থাকলে লোকাল trained model (`model/best_model`) যোগ করে আবার চেষ্টা করুন।"
+            )
+            st.stop()
 
         st.markdown("### Prediction")
         st.markdown(
