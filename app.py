@@ -104,11 +104,7 @@ div.stButton > button:hover {{
 """
 
 
-with st.sidebar:
-    st.subheader("Theme Studio")
-    selected_theme = st.selectbox("Theme Preset", list(THEME_PRESETS.keys()), index=0)
-    theme_values = dict(THEME_PRESETS[selected_theme])
-    theme_values["accent"] = st.color_picker("Accent Color", theme_values["accent"])
+theme_values = dict(THEME_PRESETS["Slate Mint"])
 
 st.markdown(build_theme_css(theme_values), unsafe_allow_html=True)
 st.markdown(
