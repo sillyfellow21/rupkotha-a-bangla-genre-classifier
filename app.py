@@ -19,10 +19,23 @@ CUSTOM_CSS = """
     margin-bottom: 1rem;
 }
 .pred-box {
-    border: 1px solid #d9e2ec;
+    border: 1px solid #cbd5e1;
     border-radius: 14px;
-    padding: 1rem;
-    background: #ffffff;
+    padding: 1rem 1.1rem;
+    background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+    box-shadow: 0 6px 18px rgba(15, 23, 42, 0.08);
+}
+.pred-title {
+    margin: 0 0 0.35rem 0;
+    color: #0b2540;
+    font-weight: 700;
+}
+.pred-meta {
+    margin: 0;
+    color: #334e68;
+}
+.pred-meta b {
+    color: #0b2540;
 }
 .small-note {
     color: #5c6b73;
@@ -127,8 +140,8 @@ if predict_clicked:
         st.markdown(
             f"""
 <div class="pred-box">
-  <h3 style="margin-top:0;">{result['predicted_genre']}</h3>
-  <p>Confidence: <b>{result['confidence'] * 100:.2f}%</b></p>
+    <h3 class="pred-title">{result['predicted_genre']}</h3>
+    <p class="pred-meta">Confidence: <b>{result['confidence'] * 100:.2f}%</b></p>
 </div>
 """,
             unsafe_allow_html=True,
